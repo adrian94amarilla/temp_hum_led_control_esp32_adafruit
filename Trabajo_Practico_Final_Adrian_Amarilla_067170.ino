@@ -8,12 +8,12 @@
 #define DHTPIN 4 // Se define el pin 4 del ESP32 para conectar el pin de datos del DHT11
 DHT dht(DHTPIN, DHTTYPE, 15); 
 /********************Parametros de conexion Wifi*******************************/
-#define WLAN_SSID "AMAPE"  // Ingresa el nombre de tu red         
-#define WLAN_PASS "06061967"  // Ingresa la contraseña de tu red 
+#define WLAN_SSID "WLAN_SSID"  // Ingresa el nombre de tu red         
+#define WLAN_PASS "WLAN_PASS"  // Ingresa la contraseña de tu red 
 /************************* Adafruit.io Setup *********************************/
 #define AIO_SERVER "io.adafruit.com"
 #define AIO_SERVERPORT 1883 // Use 8883 para SSL
-#define AIO_USERNAME "Adrian94" // Reemplace con su nombre de usuario
+#define AIO_USERNAME "AIO_USERNAME" // Reemplace con su nombre de usuario
 #define AIO_KEY "AIO_KEY" // Reemplace con su Clave de autenticación
 /************ LED **************/
 #define LED 2 //Se define el led 2 azul del ESP32
