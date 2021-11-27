@@ -6,15 +6,15 @@
 #include <DHT.h> //Cargamos la librería DHT
 #define DHTTYPE DHT11 //Definimos el modelo del sensor DHT11
 #define DHTPIN 4 // Se define el pin 4 del ESP32 para conectar el pin de datos del DHT11
-DHT dht(DHTPIN, DHTTYPE, 11); 
+DHT dht(DHTPIN, DHTTYPE, 15); 
 /********************Parametros de conexion Wifi*******************************/
-#define WLAN_SSID "WLAN_SSID"  // Ingresa el nombre de tu red         
-#define WLAN_PASS "WLAN_PASS"  // Ingresa la contraseña de tu red 
+#define WLAN_SSID "AMAPE"  // Ingresa el nombre de tu red         
+#define WLAN_PASS "06061967"  // Ingresa la contraseña de tu red 
 /************************* Adafruit.io Setup *********************************/
 #define AIO_SERVER "io.adafruit.com"
 #define AIO_SERVERPORT 1883 // Use 8883 para SSL
-#define AIO_USERNAME "AIO_USERNAME" // Reemplace con su nombre de usuario
-#define AIO_KEY "AIO_KEY" // Reemplace con su Clave de autenticación
+#define AIO_USERNAME "Adrian94" // Reemplace con su nombre de usuario
+#define AIO_KEY "aio_MWQs853bwMYqZ9w9BwzgFsb5ZpNA" // Reemplace con su Clave de autenticación
 /************ LED **************/
 #define LED 2 //Se define el led 2 azul del ESP32
 /************ Estado global (¡no necesita cambiar esto!) *********************/
@@ -31,8 +31,9 @@ Adafruit_MQTT_Subscribe LED_ONOFF = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME"
 void MQTT_connect();
 
 void setup() {
-  pinMode(DHTPIN, INPUT);
-  Serial.begin(115200);
+  dht.begin();                                                             //Comenzamos el sensor DHT
+  pinMode(DHTPIN, INPUT);                                                  //Como entrada el pin de datos del ESP32, que seria el 4
+  Serial.begin(9600);
   delay(100);
 /*************************Conexión a la red wifi**************************/
 Serial.println();
@@ -64,13 +65,14 @@ mqtt.subscribe(&LED_ONOFF);
 void loop(){
   
 MQTT_connect();
+delay(5000);                                         //Van a transcurrir 5 segundos para que se vuelva a ejecutar el LOOP()
 /*********************** LED ON % OFF ***************************/
 pinMode(LED,OUTPUT);                                  //Definimos el modo del pin, que sea de salida
 Adafruit_MQTT_Subscribe *subscription;
 subscription = mqtt.readSubscription();               //Leemos el ultimo estado del Feed LED_ONOFF
 
-Serial.print(F("\n\nDatos del Refrigerador: "));        //Mensaje en la consola serial Titulo de datos
-Serial.print(F("\n  Iluminación: "));                   //Mensaje en la consola serial del estado (Titulo)
+Serial.print(F("\n\nDatos del Refrigerador: "));      //Mensaje en la consola serial Titulo de datos
+Serial.print(F("\n  Iluminación: "));                 //Mensaje en la consola serial del estado (Titulo)
 Serial.println((char *)LED_ONOFF.lastread);           //Mensaje en la consola serial de la ultima lectura del feed LED_ONOFF
 
 //Comprobaciones del estado del Feed LED_ONOFF
@@ -80,9 +82,14 @@ if (strcmp((char *)LED_ONOFF.lastread, "OFF") == 0) { //Comparacion si la ultima
   digitalWrite(LED, LOW); }
 /********************** Sensor Temperatura % Humedad ************************/
 float tem = dht.readTemperature();                   //Se lee la temperatura
-float h = (dht.readHumidity())/10;                   //Se lee la humedad y la divimos entre 10 para tenerlo en porcentaje
+float h = dht.readHumidity();                        //Se lee la humedad y la divimos entre 10 para tenerlo en porcentaje
 
-/*float hic = dht.computeHeatIndex(tem, h, false);   //Opcion de lectura de Temperatura y Humedad a la vez*/
+// Comprobamos si ha habido algún error en la lectura, de esta manera evitamos enviar datos basura por asi decirlo mas adelante al feed correspondiente
+if (isnan(tem) || isnan(h)) {
+  Serial.println("Error obteniendo los datos del sensor DHT11");
+  delay(2000);
+  return;
+}
 
 Serial.print(F("  Temperatura: "));                  //Mensaje en la consola serial del estado de la lectura (Titulo-Temperatura)
 Serial.print(tem);                                    //Mensaje en la consola serial de la ultima lectura del sensor de Temperatura en Celsius
@@ -102,7 +109,6 @@ Serial.println(F("Lectura de Humedad Fallida"));      //Si no se publico, lanzam
 Serial.print(F("%"));                                 //Adjutamos al mensaje de la consola serial especificando que la lectura de Humedad es un porcentaje
 }
 
- delay(4000);                                         //Van a transcurrir 4 segundos para que se vuelva a ejecutar el LOOP()
 }
 /********************** Conexión MQTT ************************/
 void MQTT_connect() {
