@@ -14,7 +14,7 @@ DHT dht(DHTPIN, DHTTYPE, 15);
 #define AIO_SERVER "io.adafruit.com"
 #define AIO_SERVERPORT 1883 // Use 8883 para SSL
 #define AIO_USERNAME "Adrian94" // Reemplace con su nombre de usuario
-#define AIO_KEY "aio_MWQs853bwMYqZ9w9BwzgFsb5ZpNA" // Reemplace con su Clave de autenticación
+#define AIO_KEY "AIO_KEY" // Reemplace con su Clave de autenticación
 /************ LED **************/
 #define LED 2 //Se define el led 2 azul del ESP32
 /************ Estado global (¡no necesita cambiar esto!) *********************/
